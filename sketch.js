@@ -6,8 +6,13 @@ let boxes = [];
 
 function setup() {
 	const canvas = createCanvas(500, 300);
+  bg = loadImage('img/bg.jpg');
 	boxImg = loadImage('img/box.png');
-	groundImg = loadImage('img/ground.jpg');
+  pigAlive = loadImage('img/pigAlive.png');
+  pigDead = loadImage('img/pigDead.png');
+	woodImg = loadImage('img/wood1.png');
+	groundImg = loadImage('img/alpha.png');
+	slingSimg = loadImage('img/slingshot.png');
 	birdImg = [
 		loadImage('img/red.webp'),
 		loadImage('img/yellow.webp')
@@ -26,28 +31,44 @@ function setup() {
 	});
 	World.add(world, mc);
 
-	ground = new Ground(width / 2, height - 10, width, 20, groundImg);
+	ground = new Ground(width / 2, height -15, width, 50, groundImg);
 
-	for (let i = 0; i <= 6; i++) {
-		boxes.push(new Box(400, height - 40 * i, 40, 40, boxImg));
-		boxes.push(new Box(440, height - 40 * i, 40, 40, boxImg));
+	for (let i = 0; i <= 2; i++) {
+    boxes.push(new Box(300, height - 40 * i, 40, 40, boxImg));
+		boxes.push(new Box(380, height - 40 * i, 40, 40, boxImg));
 	}
-	bird = new Bird(100, 200, 15, birdImg[0]);
-	slingshot = new Slingshot( bird);
+  boxes.push(new Box(340, height-90 , 90, 13, woodImg));
 
+	bird = new Bird(100, 200, 15, birdImg[0]);
+  pig = new Pig(340, height-95 , 15, pigAlive, pigDead);
+	slingshot = new Slingshot( bird);
+  slingSimgBox = new Box(95, 222, 30, 75, slingSimg , {
+    isStatic: true,
+    collisionFilter: {
+      mask: 0x0001
+    }
+  });
 	// Events.on(engine, 'afterUpdate', () => slingshot.fly(mc));
 }
 
 function draw() {
-	background('#A0E9FF');
+	background(bg);
 	Engine.update(engine);
 	slingshot.fly(mc);
 
+  if(!slingshot.sling.bodyB){
+    pig.checkState();
+    for (let box of boxes) {
+      box.checkState();
+    }
+  }
 	for (let box of boxes) {
 		box.show();
 	}
 
+  slingSimgBox.show();
 	bird.show();
+  pig.show();
 	ground.show();
 	slingshot.show();
 }

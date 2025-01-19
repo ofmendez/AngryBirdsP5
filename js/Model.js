@@ -6,12 +6,68 @@ class Bird {
 			collisionFilter: {
 				category: 0x0002,
 			}
-		 });
+		});
 		Body.setMass(this.body, 2);
 		World.add(world, this.body);
 		this.r = r;
 		this.img = img;
 	}
+
+	show() {
+		const pos = this.body.position;
+		const angle = this.body.angle;
+
+		push();
+		translate(pos.x, pos.y);
+		rotate(angle);
+		fill(255, 0, 0);
+		if (this.img) {
+			imageMode(CENTER);
+			image(this.img, 0, 0, this.r * 2, this.r * 2);
+		} else {
+			ellipseMode(CENTER);
+			ellipse(0, 0, this.r * 2);
+		}
+		pop();
+	}
+
+	clear() {
+		World.remove(world, this.body);
+	}
+}
+class Pig {
+	constructor(x, y, r, img, deadImg) {
+		this.body = Bodies.circle(x, y, r, { 
+			restitution: 0.5,
+			collisionFilter: {
+				// category: 0x0002,
+			}
+		});
+		Body.setMass(this.body, 2);
+		World.add(world, this.body);
+		this.r = r;
+		this.img = img;
+    this.lifeTime = 100;
+    this.deadImg = deadImg;
+	}
+  checkState(){
+    this.lifeTime--;
+    // console.log(this.lifeTime);
+    if(this.lifeTime < 0 && this.body.speed < 0.2){
+      this.clear();
+      this.body = Bodies.circle(this.body.position.x, this.body.position.y, this.r, { 
+        isStatic: true,
+        collisionFilter: {
+          category: 0x0002,
+        }
+      });
+      World.add(world, this.body);
+      if(this.deadImg){
+        this.img = this.deadImg;
+      }
+
+    }
+  }
 
 	show() {
 		const pos = this.body.position;
@@ -43,16 +99,29 @@ class Box {
 		this.w = w;
 		this.h = h;
 		this.img = img;
+    this.lifeTime = 100;
+    this.crashed = false;
 	}
 
+  checkState(){
+    this.lifeTime--;
+    // console.log(this.lifeTime);
+    if(this.lifeTime < 0){
+      this.crashed = true;
+    }
+  }
+
 	show() {
+    if(this.crashed){
+      this.body.collisionFilter.category = 1;
+    }
 		const pos = this.body.position;
 		const angle = this.body.angle;
 
 		push();
 		translate(pos.x, pos.y);
 		rotate(angle);
-
+    // console.log(this.lifeTime);
 		fill(255);
 		if (this.img) {
 			imageMode(CENTER);
